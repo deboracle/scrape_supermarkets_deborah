@@ -2,6 +2,9 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import requests
 
+# URLs needed
+urls = {'mck': 'https://www.mck.co.il/', 'victory': 'https://www.victoryonline.co.il'}
+
 
 def get_all_from_victory():
     # Get all barcodes from victory price file
@@ -31,9 +34,10 @@ def get_all():
     return existing_barcodes
 
 
-def scrape_victory():
-    # Define url and params
-    url = 'https://www.victoryonline.co.il/v2/retailers/1470/branches/2930/products'
+def scrape(supermarket):
+    # Define url and params, branch will always be 2930 for internet
+    # TODO: params not working for mck
+    url = f'{ supermarket }/v2/retailers/1470/branches/2930/products'
     params = {
         'filters': '{"must":{"term":{"branch.isVisible":false}}}',
         'from': 1,
@@ -60,6 +64,13 @@ def scrape_victory():
     return all_products
 
 
+def insert_to_db(raw_data):
+    # This function inserts the raw data into a new table
+    conn = sqlite3.connect('/Users/deborahgironde/Downloads/data-full.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('insert data to deborah.test_table')
+
+
 def main(all_products):
     # Convert the other supermarket barcodes list to a set for faster membership checking
     other_supermarket_set = set(get_all())
@@ -70,4 +81,4 @@ def main(all_products):
 
 
 if __name__ == "__main__":
-    main(all_products=scrape_victory())
+    main(all_products=scrape(urls[input("Please enter the name of the supermarket: ")]))

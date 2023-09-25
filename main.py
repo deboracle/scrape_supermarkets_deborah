@@ -1,11 +1,13 @@
-import xml.etree.ElementTree as ET
 import sqlite3
+import json
 import requests
 
-# TODO: yohnanof, hazi heinam, maayan 2000, carrefour
+# TODO: yohnanof, hazi heinam, carrefour
 # URLs needed
-# https://www.mck.co.il/v2/retailers/1470/branches/2331/products?filters=%7B%22must%22:%7B%22term%22:%7B%22branch.isVisible%22:true%7D%7D%7D&from=1&size=500
-urls = {'mck': 'https://www.mck.co.il', 'victory': 'https://www.victoryonline.co.il'}
+# https://shop.hazi-hinam.co.il/proxy/api/item/getItemsBySubCategory?Id=11193&IsDescending=false&SortBy=-1&filter%5BFILTER_Mivza%5D=false
+# https://shop.hazi-hinam.co.il/proxy/api/Item/GetItemsByCategory/?Id=78
+
+urls = {'mck': 'https://www.mck.co.il', 'victory': 'https://www.victoryonline.co.il', 'm2000': 'https://www.m2000.co.il'}
 
 
 def get_all():
@@ -31,40 +33,40 @@ def scrape(supermarket):
     # Now getting all product info from victory api
     all_products = []
     while True:
-        response = requests.get(url, params=params)
-        data = response.json()
+        try:
+            response = requests.get(url, params=params)
+            print(response.url)
+            data = response.json()
 
-        if not data.get('products'):
-            break  # Exit the loop if no more products
+            if not data.get('products'):
+                break  # Exit the loop if no more products
 
-        # Process and store the products
-        all_products.extend(data['products'])
+            # Process and store the products
+            all_products.extend(data['products'])
 
-        # Update pagination for the next request
-        params['from'] += 500
-        print(f"Scraped { params['from'] } products...")
+            # Update pagination for the next request
+            params['from'] += 500
+            print(f"Scraped { params['from'] } products...")
+        except Exception as e:
+            print(e)
 
     # Now, all_products contains all the scraped products
     return all_products
 
 
-def insert_to_db(raw_data):
-    # This function inserts the raw data into a new table
-    conn = sqlite3.connect('/Users/deborahgironde/Downloads/data-full.sqlite')
-    cursor = conn.cursor()
-    cursor.execute('insert data to deborah.test_table')
-
-
 def main(all_products):
-    print(len(all_products))
     # Convert the other supermarket barcodes list to a set for faster membership checking
     other_supermarket_set = set(get_all())
     # filter products and keep only the ones that don't appear in the sqlite file.
     filtered_products = [product for product in all_products if product.get("barcode") not in other_supermarket_set]
-    print(filtered_products, len(filtered_products))
-    return filtered_products
+    # dumps data into json file
+    with open(f'./{supermarket}_data.json', 'w') as json_file:
+        json.dump(filtered_products, json_file, indent=4)
 
 
 if __name__ == "__main__":
-    main(all_products=scrape(urls[input("Please enter the name of the supermarket: ")]))
-    # TODO: convert and insert to table
+    supermarket = input('please enter name of the supermarket: ')
+    main(all_products=scrape(urls[supermarket]))
+
+
+    # description, nutrition itm (ingredients), symbole (sucar, shuman), unite de mesure, categorie, pct de fruits, marque, allergenes, may contain, image url

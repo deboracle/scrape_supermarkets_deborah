@@ -25,8 +25,10 @@ def process_json_data(json_file_path):
         data = json.load(json_file)
 
         # This helper function will return None if a key is not found in the JSON
-
         # TODO: try to find symbol, fruit pct
+        # TODO: nutrition values & categories fix
+
+
         for item in data:
             product_data = {}
             product_data['barcode'] = check_key(item, ['barcode'])
@@ -43,11 +45,11 @@ def process_json_data(json_file_path):
 
             # Extract all categories for product
             categories_list = []
-            for categories in item['family']['categories']:
+            for categories in check_key(item, ['family', 'categories']):
                 categories_list.append([categories['names']['2'], categories['names']['1']])
 
             # same for nutrition values
-            nutr_values = item['nutritionValues']
+            # nutr_values = item['nutritionValues']
 
             data_list.append(product_data)
             print(product_data)

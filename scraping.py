@@ -32,7 +32,7 @@ def scrape(supermarket):
         'size': 500
     }
 
-    # Now getting all product info from victory api
+    # Now getting all product info from api
     all_products = []
     while True:
         try:

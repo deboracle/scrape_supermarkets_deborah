@@ -26,7 +26,7 @@ def get_ids():
                     name_he = categories['names']['1']
                     print(id, name_en, name_he)
                     if id not in category_ids:
-                        category_ids[id] = [name_en, name_he]
+                        category_ids[name_en] = name_he
                     else:
                         pass
             except KeyError:

@@ -30,7 +30,11 @@ def get_ids():
                     else:
                         pass
             except KeyError:
-                print('key does not exist')
+                try:
+                    if item['department']['id'] not in category_ids:
+                        category_ids[item['department']['id']] = item['department']['name']
+                except KeyError:
+                    pass
 
     # Print the list of unique categories
     return category_ids
